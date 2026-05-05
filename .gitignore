@@ -1,0 +1,17 @@
+.DS_Store
+.gradle/
+build/
+out/
+.idea/
+*.iml
+
+backend/ktor-app/.gradle/
+backend/ktor-app/build/
+
+backend/certs/*.p12
+backend/certs/*.jks
+
+*.log
+
+AGENTS.md
+GEMINI.md
