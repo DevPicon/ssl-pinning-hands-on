@@ -1,0 +1,11 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/docker/Dockerfile
+    ports:
+      - "8443:8443"
+    environment:
+      KEYSTORE_PATH: /certs/keystore.p12
+      KEYSTORE_PASSWORD: password
+      KEY_ALIAS: ktor
