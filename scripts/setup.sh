@@ -13,11 +13,12 @@ mkdir -p "$CERTS_DIR"
 echo "Generating local self-signed certificate..."
 
 openssl req -x509 -newkey rsa:2048 \
-  -keyout "$KEY_FILE" \
-  -out "$CERT_FILE" \
-  -days 365 \
-  -nodes \
-  -subj "/CN=localhost"
+-keyout "$KEY_FILE" \
+-out "$CERT_FILE" \
+-days 365 \
+-nodes \
+-subj "/CN=localhost" \
+-addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:10.0.2.2"
 
 echo "Exporting certificate as .cer for iOS..."
 
