@@ -10,7 +10,7 @@ final class MainViewModel: ObservableObject {
     private let backendClient: BackendClient
 
     init(
-        backendClient: BackendClient = CertificatePinnedBackendClient()
+        backendClient: BackendClient
     ) {
         self.backendClient = backendClient
     }
