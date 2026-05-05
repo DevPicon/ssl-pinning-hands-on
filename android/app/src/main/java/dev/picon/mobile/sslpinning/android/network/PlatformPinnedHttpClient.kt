@@ -1,24 +1,12 @@
 package dev.picon.mobile.sslpinning.android.network
 
-import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-
-class PinnedHttpClient(
-    sslPin: String
-) : BackendClient {
-    override val clientName: String = "OkHttp CertificatePinner"
-
-    private val certificatePinner = CertificatePinner.Builder()
-        .add(
-            "10.0.2.2",
-            sslPin
-        )
-        .build()
+class PlatformPinnedHttpClient : BackendClient{
+    override val clientName: String = "Android Network Security Config"
 
     private val client = OkHttpClient.Builder()
-        .certificatePinner(certificatePinner)
         .build()
 
     override fun callHealth(): String {

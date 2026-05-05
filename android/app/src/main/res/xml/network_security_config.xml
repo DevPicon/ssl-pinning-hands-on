@@ -6,5 +6,9 @@
         <trust-anchors>
             <certificates src="@raw/server" />
         </trust-anchors>
+
+        <pin-set expiration="2027-12-31">
+            <pin digest="SHA-256">04GEV51L7d2+fJUnh6E4wetKlfcqkgIZdB8EApjuI+8=</pin>
+        </pin-set>
     </domain-config>
 </network-security-config>

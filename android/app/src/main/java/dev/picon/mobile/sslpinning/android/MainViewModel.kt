@@ -5,13 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.picon.mobile.sslpinning.android.network.PinnedHttpClient
+import dev.picon.mobile.sslpinning.android.network.BackendClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainViewModel(
-    private val httpClient: PinnedHttpClient
+    private val backendClient: BackendClient
 ) : ViewModel() {
 
     var uiState by mutableStateOf(MainUiState())
@@ -23,12 +23,22 @@ class MainViewModel(
 
             uiState = try {
                 val response = withContext(Dispatchers.IO) {
-                    httpClient.callHealth()
+                    backendClient.callHealth()
                 }
 
-                MainUiState(message = response)
+                MainUiState(
+                    message = """
+                        Client: ${backendClient.clientName}
+                        Response: $response
+                        """.trimIndent()
+                )
             } catch (e: Exception) {
-                MainUiState(message = "Error: ${e.message}")
+                MainUiState(
+                    message = """
+                        Client: ${backendClient.clientName}
+                        Error: ${e.message}
+                        """.trimIndent()
+                )
             }
         }
     }

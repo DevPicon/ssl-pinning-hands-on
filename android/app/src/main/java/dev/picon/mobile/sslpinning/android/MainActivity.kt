@@ -15,7 +15,8 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels {
         MainViewModelFactory(
-            sslPin = BuildConfig.SSL_PIN
+            sslPin = BuildConfig.SSL_PIN,
+            useOkHttpPinning = BuildConfig.USE_OKHTTP_PINNING
         )
     }
 

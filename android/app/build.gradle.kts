@@ -18,6 +18,11 @@ val sslPin = localProperties.getProperty(
     "sha256/REPLACE_WITH_YOUR_PIN"
 )
 
+val useOkHttpPinning = localProperties.getProperty(
+    "USE_OKHTTP_PINNING",
+    "true"
+)
+
 android {
     namespace = "dev.picon.mobile.sslpinning.android"
     compileSdk {
@@ -39,6 +44,11 @@ android {
             "SSL_PIN",
             "\"$sslPin\""
 
+        )
+        buildConfigField(
+            "Boolean",
+            "USE_OKHTTP_PINNING",
+            useOkHttpPinning
         )
     }
 
