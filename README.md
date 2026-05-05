@@ -26,7 +26,15 @@ ssl-pinning-hands-on/
 
 ## Goal
 
-The goal is to show how mobile apps can validate a backend certificate or public key using SSL/TLS pinning.
+The goal of this project is to provide a practical and reproducible SSL/TLS pinning playground for mobile applications.
+
+The repository demonstrates:
+- HTTPS backend configuration
+- Self-signed certificate generation
+- Public key pin extraction
+- Android SSL pinning approaches
+- Failure scenarios and debugging
+- Reproducible local environments using Docker
 
 This project is educational. The certificates used here are for local development only.
 
@@ -34,10 +42,43 @@ Do not use these certificates in production.
 
 ## What You Will Learn
 
-- How to run a TLS-enabled backend locally  
-- How SSL/TLS pinning works in practice  
-- How to extract a public key pin  
-- How mobile apps validate server identity  
+### Backend
+- How to configure HTTPS in Ktor
+- How to generate self-signed certificates
+- How TLS works locally with Docker
+
+### Android
+- OkHttp CertificatePinner
+- Android Network Security Config
+- Trust anchors
+- Public key pinning
+- Failure scenarios
+- Hostname verification
+- SAN (Subject Alternative Name)
+
+### Security Concepts
+- TLS vs SSL pinning
+- Trust anchors
+- Public key pinning
+- Certificate rotation trade-offs
+- Debugging pinning failures
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[Android App] --> B[HTTPS Request]
+    B --> C{Pinning Strategy}
+
+    C --> D[OkHttp CertificatePinner]
+    C --> E[Network Security Config]
+
+    D --> F[Ktor HTTPS Backend]
+    E --> F
+
+    F --> G[Docker Container]
+```
+
 
 ## Requirements
 
@@ -47,13 +88,23 @@ Do not use these certificates in production.
 - Android Studio
 - Xcode
 
-## Running the backend
+## Running the Environment
 
-From the root of the project, run:
+From the root of the project:
 
-```
+```bash
 ./scripts/setup.sh
 ```
+
+The script will:
+
+- Generate local self-signed certificates
+- Export `.cer` certificate for mobile clients
+- Generate PKCS12 keystore for Ktor
+- Copy Android certificate automatically
+- Calculate Android SHA-256 pin
+- Start Docker backend
+
 
 The backend will be available at:
 
@@ -112,6 +163,20 @@ During setup, the following files are created:
 - `server.cer` → Certificate for iOS
 - `keystore.p12` → Keystore used by Ktor
 
+## Certificate Flow
+
+```mermaid
+flowchart LR
+    A[setup.sh] --> B[Generate Self-Signed Certificate]
+    B --> C[Export server.cer]
+    B --> D[Generate keystore.p12]
+    B --> E[Calculate SHA-256 Pin]
+
+    C --> F[Android raw resources]
+    D --> G[Ktor Backend]
+    E --> H[local.properties]
+```
+
 ## Extracting the SHA-256 Pin (for Android)
 
 To generate the public key pin used in Android:
@@ -141,6 +206,101 @@ Expected response:
 { “status”: “ok” }
 ```
 
+## Android SSL Pinning
+
+This project demonstrates two Android approaches:
+
+### 1. OkHttp CertificatePinner
+
+Application-level pinning using:
+
+- OkHttp
+- CertificatePinner
+- Public key pin validation
+
+Enable it with:
+
+```properties
+USE_OKHTTP_PINNING=true
+```
+
+---
+
+### 2. Network Security Config
+
+Platform-level pinning using:
+
+- `network_security_config.xml`
+- Android trust anchors
+- XML-defined pinning
+
+Enable it with:
+
+```properties
+USE_OKHTTP_PINNING=false
+```
+
+## Android Architecture
+
+```mermaid
+flowchart TD
+    A[MainActivity] --> B[MainViewModel]
+    B --> C[BackendClient]
+
+    C --> D[PinnedHttpClient]
+    C --> E[PlatformPinnedHttpClient]
+
+    D --> F[OkHttp CertificatePinner]
+    E --> G[Network Security Config]
+
+    F --> H[Ktor Backend]
+    G --> H
+```
+
+## Android Pinning Approaches
+
+```mermaid
+flowchart LR
+    A[Android App]
+
+    A --> B[OkHttp Layer]
+    A --> C[Android Platform Layer]
+
+    B --> D[CertificatePinner]
+    C --> E[Network Security Config]
+
+    D --> F[Ktor Backend]
+    E --> F
+```
+
+## Android Local Configuration
+
+After running `./scripts/setup.sh`, copy the generated `SSL_PIN` value into:
+
+`android/local.properties`
+
+Example:
+
+```properties
+SSL_PIN=sha256/YOUR_GENERATED_PIN
+USE_OKHTTP_PINNING=true
+```
+Use USE_OKHTTP_PINNING=false to test the Network Security Config approach.
+
+## Failure Scenarios
+
+This project intentionally demonstrates failure cases:
+
+- Invalid SSL pins
+- Hostname verification failures
+- Missing trust anchors
+- Platform pin validation failures
+
+These scenarios help understand:
+- How SSL pinning actually works
+- How different Android layers behave
+- How debugging differs between approaches
+
 
 ## Educational Notes
 
@@ -155,11 +315,12 @@ It is intentionally simple:
 
 The focus is mobile SSL/TLS pinning, not backend architecture.
 
-## Planned Clients
+## Clients
 
 - Android app using OkHttp CertificatePinner
-- iOS app using URLSession certificate pinning
-- iOS app using public key pinning
+- Android app using Network Security Config
+- iOS app using URLSession certificate pinning (planned)
+- iOS app using public key pinning (planned)
 
 ## Quick Troubleshooting
 
@@ -167,3 +328,20 @@ The focus is mobile SSL/TLS pinning, not backend architecture.
 - If Docker is not running, start it before executing the script
 - If curl fails, try adding the -k flag to ignore certificate validation
 
+## Current Status
+
+### Backend
+- [x] HTTPS Ktor backend
+- [x] Dockerized environment
+- [x] Self-signed certificate generation
+
+### Android
+- [x] OkHttp CertificatePinner
+- [x] Network Security Config
+- [x] Failure scenarios
+- [x] Reproducible setup
+
+### iOS
+- [ ] URLSession certificate pinning
+- [ ] Public key pinning
+- [ ] Alamofire approach
