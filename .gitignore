@@ -18,3 +18,5 @@ GEMINI.md
 
 backend/certs/*
 !backend/certs/.gitkeep
+
+android/app/src/main/res/raw/server.cer
