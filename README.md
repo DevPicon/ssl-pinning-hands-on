@@ -285,7 +285,7 @@ Example:
 SSL_PIN=sha256/YOUR_GENERATED_PIN
 USE_OKHTTP_PINNING=true
 ```
-Use USE_OKHTTP_PINNING=false to test the Network Security Config approach.
+Use USE_OKHTTP_PINNING=false to test the Network Security Config approach.o
 
 ## Failure Scenarios
 

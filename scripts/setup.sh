@@ -11,6 +11,9 @@ KEYSTORE_FILE="$CERTS_DIR/keystore.p12"
 ANDROID_RAW_DIR="android/app/src/main/res/raw"
 ANDROID_CERT_FILE="$ANDROID_RAW_DIR/server.cer"
 
+IOS_APP_DIR="ios/SslPinningIos/SslPinningIos"
+IOS_CERT_FILE="$IOS_APP_DIR/server.cer"
+
 mkdir -p "$CERTS_DIR"
 
 if [[ -f "$CERT_FILE" && -f "$KEY_FILE" && -f "$CER_FILE" && -f "$KEYSTORE_FILE" ]]; then
@@ -47,6 +50,11 @@ echo "Copying certificate to Android raw resources..."
 
 mkdir -p "$ANDROID_RAW_DIR"
 cp "$CER_FILE" "$ANDROID_CERT_FILE"
+
+echo "Copying certificate to iOS app bundle..."
+
+mkdir -p "$IOS_APP_DIR"
+cp "$CER_FILE" "$IOS_CERT_FILE"
 
 SSL_PIN=$(openssl x509 -in "$CERT_FILE" -pubkey -noout \
   | openssl pkey -pubin -outform der \
