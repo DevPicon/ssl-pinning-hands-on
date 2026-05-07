@@ -2,6 +2,10 @@
 
 Hands-on project to demonstrate SSL/TLS pinning in mobile apps.
 
+Pinning means "fixing" or "anchoring" an expected server identity in the app. Instead of accepting any certificate that the platform considers valid, the app also checks that the backend presents the expected certificate or public key.
+
+In this project, the mobile app validates the backend. The backend is not validating the app certificate. Mutual validation is possible with mutual TLS (mTLS), but that is outside the scope of this hands-on.
+
 This repository contains:
 
 - A minimal Ktor backend running with HTTPS
@@ -194,6 +198,50 @@ Use the output like this:
 sha256/YOUR_BASE64_PIN
 ```
 
+In this project, "pin" means the expected value the app compares against during pin validation. For public key pinning, that value is the SHA-256 hash of the certificate's public key material, encoded as Base64. OkHttp expects the `sha256/` prefix; Android Network Security Config uses the Base64 value inside a `<pin digest="SHA-256">` element.
+
+## Public Key Pin vs Certificate Hash
+
+This project uses public key pinning for Android. The pin is calculated from the certificate's public key, not from the full certificate bytes.
+
+That distinction matters during certificate rotation:
+
+- Reissuing or renewing a certificate with the same key changes the certificate hash.
+- Reissuing or renewing a certificate with the same key keeps the public key pin stable.
+- Generating a new key changes the public key pin.
+
+To see this locally without modifying the demo certificates:
+
+```bash
+./scripts/demo-public-key-pin-rotation.sh
+```
+
+The script creates temporary certificates and compares:
+
+- A full certificate SHA-256 hash.
+- A public key SHA-256 pin.
+- A renewed certificate using the same key.
+- A new certificate using a new key.
+
+## Pin Rotation Guidelines
+
+Pinning is not only a code decision. It also requires an operational rotation plan.
+
+General guidelines:
+
+- Prefer public key pinning over full certificate hash pinning unless you have a specific reason to pin the full certificate.
+- Use a pinset, not a single pin.
+- Keep at least one active pin and one backup pin.
+- Generate the backup key before you need it.
+- Release an app version that contains both the active pin and the backup pin.
+- Wait for enough users to adopt that app version before switching the server to a new key.
+- Renew certificates freely when they keep the same public key.
+- If the public key must change, switch to a key that is already present as a backup pin in released app versions.
+- After migration, release a new app version with a new backup pin.
+- Monitor pinning failures so rotation problems are detected quickly.
+
+Without a rotation strategy, pinning can turn a security control into an availability problem.
+
 ## First Run Validation
 
 After running the setup script, validate the backend:
@@ -285,7 +333,7 @@ Example:
 SSL_PIN=sha256/YOUR_GENERATED_PIN
 USE_OKHTTP_PINNING=true
 ```
-Use USE_OKHTTP_PINNING=false to test the Network Security Config approach.o
+Use USE_OKHTTP_PINNING=false to test the Network Security Config approach.
 
 ## Failure Scenarios
 
