@@ -28,3 +28,6 @@ ios/SslPinningIos/SslPinningIos/server.cer
 # Xcode user-specific files
 *.xcuserstate
 ios/**/xcuserdata/
+
+# Video production notes, scripts, and presentation drafts
+video-production/
